@@ -1,4 +1,4 @@
-define(["Tone/core/Tone", "Tone/instrument/MonoSynth", "Tone/instrument/AMSynth", "Tone/signal/Signal", "Tone/signal/Multiply", "Tone/instrument/Monophonic"], 
+define(["Tone/core/Tone", "Tone/instrument/MonoSynth", "Tone/instrument/SimpleAM", "Tone/signal/Signal", "Tone/signal/Multiply", "Tone/instrument/Monophonic"], 
 function(Tone){
 
 	"use strict";
@@ -32,9 +32,9 @@ function(Tone){
 
 		/**
 		 *  The modulator voice.
-		 *  @type {Tone.AMSynth}
+		 *  @type {Tone.SimpleAM}
 		 */
-		this.modulator = new Tone.AMSynth(options.modulator);
+		this.modulator = new Tone.SimpleAM(options.modulator);
 		this.modulator.volume.value = -10;
 
 		/**
@@ -94,15 +94,15 @@ function(Tone){
 		"harmonicity" : 1.4,
 		"modulationIndex" : 10,
 		"carrier" : {
-			"volume" : -10,
+			"volume" : -20,
 			"portamento" : 0,
 			"oscillator" : {
 				"type" : "sine"
 			},
 			"envelope" : {
 				"attack" : 0.01,
-				"decay" : 0.0,
-				"sustain" : 1,
+				"decay" : .5,
+				"sustain" : 0,
 				"release" : 0.5
 			},
 			"filterEnvelope" : {
@@ -118,6 +118,7 @@ function(Tone){
 			"harmonicity" : 10,
 			"carrier" : {
 				"volume" : -10,
+				"portamento" : 0,
 				"oscillator" : {
 					"type" : "sine"
 				},
@@ -125,46 +126,21 @@ function(Tone){
 					"attack" : 0.01,
 					"decay" : 0.01,
 					"sustain" : 1,
-					"release" : 0.5
-				},
-				"filterEnvelope" : {
-					"attack" : 0.01,
-					"decay" : 0.0,
-					"sustain" : 1,
-					"release" : 0.5,
-					"min" : 20000,
-					"max" : 20000
-				},
-				"filter" : {
-					"Q" : 0,
-					"type" : "allpass",
-					"rolloff" : -24
+					"release" : 0
 				},
 			},
 			"modulator" : {
 				"volume" : -10,
+				"portamento" : 0,
 				"oscillator" : {
 					"type" : "sine"
 				},
 				"envelope" : {
-					"attack" : 0,
-					"decay" : 0.0,
+					"attack" : 0.5,
+					"decay" : 0.1,
 					"sustain" : 1,
 					"release" : 0
-				},
-				"filterEnvelope" : {
-					"attack" : 4,
-					"decay" : 0.2,
-					"sustain" : 0.5,
-					"release" : 0.5,
-					"min" : 20,
-					"max" : 1500
-				},
-				"filter" : {
-					"Q" : 6,
-					"type" : "lowpass",
-					"rolloff" : -24
-				},
+				}
 			}
 		}
 	};
@@ -185,7 +161,6 @@ function(Tone){
 		this.modulator.modulator.envelope.triggerAttack(time);
 		this.modulator.carrier.envelope.triggerAttack(time);
 		this.carrier.filterEnvelope.triggerAttack(time);
-		this.modulator.modulator.filterEnvelope.triggerAttack(time);
 		return this;
 	};
 
