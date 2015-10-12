@@ -1,5 +1,6 @@
-define(["Tone/core/Tone", "Tone/instrument/SimpleFM", "Tone/signal/Signal", "Tone/signal/Multiply", 
-	"Tone/instrument/Monophonic", "Tone/component/LineAmplitudeEnvelope"], 
+define(["Tone/core/Tone", "Tone/signal/Signal", "Tone/signal/Multiply", "Tone/instrument/Monophonic", 
+	"Tone/component/LineAmplitudeEnvelope", "Tone/component/Split", "Tone/component/Merge", 
+	"Tone/source/FMOscillator"], 
 function(Tone){
 
 	"use strict";
@@ -28,16 +29,28 @@ function(Tone){
 
 		this.modulationMultiplier = [];
 
-		this.envelopeOne = new Tone.LineAmplitudeEnvelope([[0, 0],[1, 0.2], [1, 0.8], [0, 1]]).connect(this.output);
+		this.envOne = [[0, 0],[1, 0.2], [1, 0.6], [0, 1]];
+		this.envTwo = [[0, 0], [1, 0.1], [1, 0.5], [0, 1]];
+		this.envThree = [[0, 0], [0.5, 0.4], [0.8, 0.6], [0, 1]];
 
-		this.envelopeTwo = new Tone.LineAmplitudeEnvelope([[0, 0], [1, 0.1], [1, 0.5], [0, 1]]).connect(this.output);
+		this.splitLeft = new Tone.Split();
+		this.splitRight = new Tone.Split();
 
-		this.envelopeThree = new Tone.LineAmplitudeEnvelope([[0, 0], [0.5, 0.4], [0.8, 0.6], [0, 1]]).connect(this.output);
+		this.envelopes = [];
+		this.envelopes[0] = new Tone.LineAmplitudeEnvelope(this.envOne).connect(this.splitLeft);
+		this.envelopes[1] = new Tone.LineAmplitudeEnvelope(this.envTwo).connect(this.splitRight);
+		this.envelopes[2] = new Tone.LineAmplitudeEnvelope(this.envTwo).connect(this.splitLeft);
+		this.envelopes[3] = new Tone.LineAmplitudeEnvelope(this.envTwo).connect(this.splitRight);
+		this.envelopes[4] = new Tone.LineAmplitudeEnvelope(this.envThree).connect(this.splitLeft).connect(this.splitRight);
 
 		this.modulationEnvelope = new Tone.LineEnvelope([[0, 0], [1, 0.5], [0, 1]]);
 
+		this.volumes = [0.4, 0.2, 0.133, 0.1, 0.066];
+
 		for(var i = 0; i <5; i ++){
 			this.voices[i] = new Tone.FMOscillator().start();
+
+			this.voices[i].modulator.volume.value = -20;
 
 			this.carrierMultiplier[i] = new Tone.Multiply(this.carrierValues[i]);
 			this.frequency.connect(this.carrierMultiplier[i]);
@@ -51,13 +64,14 @@ function(Tone){
 
 			this.modulationEnvelope.connect(this.modulationMultiplier[i]);
 
-			this.voices[i].volume.value = -20;
-
+			this.voices[i].volume.value = Tone.prototype.gainToDb(this.volumes[i]);
+			this.voices[i].connect(this.envelopes[i]);
 		}
 
-		this.voices[0].connect(this.envelopeOne);
-		this.voices[2].connect(this.envelopeTwo);
-		this.voices[4].connect(this.envelopeThree);
+		this.merge = new Tone.Merge().connect(this.output);
+
+		this.splitLeft.connect(this.merge.left);
+		this.splitRight.connect(this.merge.right);
 	};
 
 	Tone.extend(Tone.FMGlass, Tone.Monophonic);
@@ -74,9 +88,9 @@ function(Tone){
 		duration = this.toSeconds(duration);
 
 		this.setNote(note, time);
-		this.envelopeOne.triggerAttackRelease(duration, time, velocity);
-		this.envelopeTwo.triggerAttackRelease(duration, time, velocity);
-		this.envelopeThree.triggerAttackRelease(duration, time, velocity);
+		for(var i = 0; i < this.envelopes.length; i ++){
+			this.envelopes[i].triggerAttackRelease(duration, time, velocity);
+		}
 		this.modulationEnvelope.triggerAttackRelease(duration, time);
 		return this;
 	};
