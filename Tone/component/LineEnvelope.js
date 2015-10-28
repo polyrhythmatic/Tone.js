@@ -63,7 +63,7 @@ define(["Tone/core/Tone", "Tone/signal/Signal"], function(Tone){
 		this._sig.setValueAtTime(this.line[0][0], time + this.line[0][1]);
 
 		for(var i = 1; i < this.line.length; i++){
-			this._sig.linearRampToValueAtTime(this.line[i][0], time + this.line[i][1]);
+			this._sig.exponentialRampToValueAtTime(this.line[i][0], time + this.line[i][1]);
 		}
 		return this;
 	};
