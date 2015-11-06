@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+	<title>CYMBAL</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+	<script type="text/javascript" src="./scripts/jquery.min.js"></script>
+	<script type="text/javascript" src="../build/Tone.js"></script>
+	<script type="text/javascript" src="../build/Tone.Preset.js"></script>
+	<script type="text/javascript" src="./scripts/nexusUI.js"></script>
+	<script type="text/javascript" src="./scripts/prism.js"></script>
+	<script type="text/javascript" src="./scripts/Interface.js"></script>
+	<script type="text/javascript" src="./scripts/qwerty-hancock.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="./style/examples.css">
+	<link rel="stylesheet" type="text/css" href="./style/prism.css">
+
+	<script type="text/javascript">
+	var filter = new Tone.Filter({
+		"type" : "lowpass",
+		"frequency" : 16000,
+		"rolloff" : -24
+	}).toMaster();
+	var cymbal = new Tone.CymbalSynth().connect(filter);
+	</script>
+
+	<style type="text/css">
+
+	.wrapper {
+		width: 524px;
+		padding: 10px;
+		border: 1px solid black;
+		margin: 10px auto;
+	}
+
+	.comp-div {
+		width: 150px;
+		display: inline-block;
+		border: 1px solid black;
+		padding: 10px;
+	}
+
+	#bandpass0 {
+	}
+	#bandpass1 {
+	}
+	#bandpass2 {
+	}
+
+	</style>
+</head>
+
+<body>
+	<div class = "wrapper">
+		<div id="overall" class="comp-div">
+			<p>Cymbal</p>
+			<br>
+			<p>Inharmonicity</p>
+			<input type="range" id="harmonicity" value="0"/>
+			<br>
+			<p>Base Frequency</p>
+			<input type="range" id="frequency" value="0"/>
+			<br>
+			<p>Trigger</p>
+			<button type="button" onclick="cymbal.triggerAttack()">CYMBAL</button>
+		</div>
+		<div id="strike" class="comp-div">
+			<p>Strike</p>
+			<br>
+			<p>Volume</p>
+			<input type="range" id="strikeVolume" value="0"/>
+			<br>
+			<p>Cutoff</p>
+			<input type="range" id="strikeCutoff" value="0"/>
+			<br>
+			<p>Resonance</p>
+			<input type="range" id="strikeResonance" value="0"/>
+			<br>
+			<p>Attack</p>
+			<input type="range" id="strikeAttack" value="0"/>
+			<br>
+			<p>Decay</p>
+			<input type="range" id="strikeDecay" value="0"/>
+			<br>
+		</div>
+		<div id="body" class="comp-div">
+			<p>Body</p>
+			<br>
+			<p>Volume</p>
+			<input type="range" id="bodyVolume" value="0"/>
+			<br>
+			<p>Cutoff</p>
+			<input type="range" id="bodyCutoff" value="0"/>
+			<br>
+			<p>Resonance</p>
+			<input type="range" id="bodyResonance" value="0"/>
+			<br>
+			<p>Attack</p>
+			<input type="range" id="bodyAttack" value="0"/>
+			<br>
+			<p>Decay</p>
+			<input type="range" id="bodyDecay" value="0"/>
+			<br>
+		</div>
+	</div>
+	<script type="text/javascript">
+
+		window.onkeypress=function(){
+			cymbal.triggerAttack(Tone.context.currentTime);
+		};
+			var freq = document.getElementById("frequency");
+			freq.max = 3000;
+			freq.value = cymbal.frequency.value;
+			freq.step = 50;
+
+			var inharm = document.getElementById("harmonicity");
+			inharm.max = 20;
+			inharm.value = cymbal.harmonicity.value;
+			inharm.step = 0.1;
+
+			var componentArray = ["strike", "body"];
+			for(var i = 0; i < 2; i ++){
+				var freq = document.getElementById(componentArray[i] + "Cutoff");
+				freq.max = 10000;
+				freq.value = cymbal[componentArray[i]].cutoff.value;
+				freq.step = 50;
+
+				var q = document.getElementById(componentArray[i] + "Resonance");
+				q.max = 20;
+				q.value = cymbal[componentArray[i]].resonance.value;
+				q.step = 0.1;
+
+				var gain = document.getElementById(componentArray[i] + "Volume");
+				gain.max = 20;
+				gain.min = -20
+				gain.value = cymbal[componentArray[i]].volume.value;
+				gain.step = 1;
+
+				var decay = document.getElementById(componentArray[i] + "Decay");
+				decay.max = 6;
+				decay.value = cymbal[componentArray[i]].envelope.decay;
+				decay.step = 0.01;
+
+				var attack = document.getElementById(componentArray[i] + "Attack");
+				attack.max = .5;
+				attack.value = cymbal[componentArray[i]].envelope.attack;
+				attack.step = 0.01;
+			}
+
+			$("#frequency").on("change", function(){
+				cymbal.frequency.value = $("#frequency").val();
+			});
+
+			$("#harmonicity").on("change", function(){
+				cymbal.harmonicity.value = $("#harmonicity").val();
+			});
+
+			$("#strikeCutoff").on("change", function(){
+				cymbal.strike.cutoff.value = $("#strikeCutoff").val();
+			});
+
+			$("#strikeResonance").on("change", function(){
+				cymbal.strike.resonance.value = $("#strikeResonance").val();
+			});
+
+			$("#strikeVolume").on("change", function(){
+				cymbal.strike.volume.value = $("#strikeVolume").val();
+			});
+
+			$("#strikeDecay").on("change", function(){
+				cymbal.strike.envelope.decay = $("#strikeDecay").val();
+			});
+
+			$("#strikeAttack").on("change", function(){
+				cymbal.strike.envelope.attack = $("#strikeAttack").val();
+			});
+
+			/////////
+
+			$("#bodyCutoff").on("change", function(){
+				cymbal.strike.cutoff.value = $("#bodyCutoff").val();
+			});
+
+			$("#bodyResonance").on("change", function(){
+				cymbal.body.resonance.value = $("#bodyResonance").val();
+			});
+
+			$("#bodyVolume").on("change", function(){
+				cymbal.body.volume.value = $("#bodyVolume").val();
+			});
+
+			$("#bodyDecay").on("change", function(){
+				cymbal.body.envelope.decay = $("#bodyDecay").val();
+			});
+
+			$("#bodyAttack").on("change", function(){
+				cymbal.body.envelope.attack = $("#bodyAttack").val();
+			});
+
+	</script>
+</body>
+</html>
